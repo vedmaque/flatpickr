@@ -993,10 +993,12 @@ function Flatpickr(element, config) {
 	}
 
 	function onMouseOver(e) {
-		if (self.selectedDates.length !== 1 || !e.target.classList.contains("flatpickr-day"))
+		const ancestor = findAncestor(e.target, "flatpickr-day");
+
+		if (self.selectedDates.length !== 1 || !ancestor.classList.contains("flatpickr-day"))
 			return;
 
-		let hoverDate = e.target.dateObj,
+		let hoverDate = ancestor.dateObj,
 			initialDate = self.parseDate(self.selectedDates[0], true),
 			rangeStartDate = Math.min(hoverDate.getTime(), self.selectedDates[0].getTime()),
 			rangeEndDate = Math.max(hoverDate.getTime(), self.selectedDates[0].getTime()),
@@ -1035,7 +1037,7 @@ function Flatpickr(element, config) {
 			const minRangeDate = Math.max(self.minRangeDate.getTime(), rangeStartDate),
 				maxRangeDate = Math.min(self.maxRangeDate.getTime(), rangeEndDate);
 
-			e.target.classList.add(hoverDate < self.selectedDates[0] ? "startRange" : "endRange");
+			ancestor.classList.add(hoverDate < self.selectedDates[0] ? "startRange" : "endRange");
 
 			if (initialDate > hoverDate && timestamp === initialDate.getTime())
 				self.days.childNodes[i].classList.add("endRange");
@@ -1273,6 +1275,13 @@ function Flatpickr(element, config) {
 		buildDays();
 	}
 
+	function findAncestor (el, cls) {
+		if (el.classList.contains(cls)) return el;
+
+		while ((el = el.parentElement) && !el.classList.contains(cls));
+		return el;
+	}
+
 	function selectDate(e) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -1292,18 +1301,20 @@ function Flatpickr(element, config) {
 			return e.target.blur();
 		}
 
+		const ancestor = findAncestor(e.target, "flatpickr-day");
+
 		if (
-			!e.target.classList.contains("flatpickr-day") ||
-			e.target.classList.contains("disabled") ||
-			e.target.classList.contains("notAllowed")
+			!ancestor.classList.contains("flatpickr-day") ||
+			ancestor.classList.contains("disabled") ||
+			ancestor.classList.contains("notAllowed")
 		)
 			return;
 
 		const selectedDate
 			= self.latestSelectedDateObj
-			= new Date(e.target.dateObj.getTime());
+			= new Date(ancestor.dateObj.getTime());
 
-		self.selectedDateElem = e.target;
+		self.selectedDateElem = ancestor;
 
 		if (self.config.mode === "single")
 			self.selectedDates = [selectedDate];

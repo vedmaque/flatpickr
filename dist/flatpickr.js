@@ -799,9 +799,11 @@ function Flatpickr(element, config) {
 	}
 
 	function onMouseOver(e) {
-		if (self.selectedDates.length !== 1 || !e.target.classList.contains("flatpickr-day")) return;
+		var ancestor = findAncestor(e.target, "flatpickr-day");
 
-		var hoverDate = e.target.dateObj,
+		if (self.selectedDates.length !== 1 || !ancestor.classList.contains("flatpickr-day")) return;
+
+		var hoverDate = ancestor.dateObj,
 		    initialDate = self.parseDate(self.selectedDates[0], true),
 		    rangeStartDate = Math.min(hoverDate.getTime(), self.selectedDates[0].getTime()),
 		    rangeEndDate = Math.max(hoverDate.getTime(), self.selectedDates[0].getTime()),
@@ -832,7 +834,7 @@ function Flatpickr(element, config) {
 			var minRangeDate = Math.max(self.minRangeDate.getTime(), rangeStartDate),
 			    maxRangeDate = Math.min(self.maxRangeDate.getTime(), rangeEndDate);
 
-			e.target.classList.add(hoverDate < self.selectedDates[0] ? "startRange" : "endRange");
+			ancestor.classList.add(hoverDate < self.selectedDates[0] ? "startRange" : "endRange");
 
 			if (initialDate > hoverDate && timestamp === initialDate.getTime()) self.days.childNodes[i].classList.add("endRange");else if (initialDate < hoverDate && timestamp === initialDate.getTime()) self.days.childNodes[i].classList.add("startRange");else if (timestamp > minRangeDate && timestamp < maxRangeDate) self.days.childNodes[i].classList.add("inRange");
 		};
@@ -1011,6 +1013,13 @@ function Flatpickr(element, config) {
 		buildDays();
 	}
 
+	function findAncestor(el, cls) {
+		if (el.classList.contains(cls)) return el;
+
+		while ((el = el.parentElement) && !el.classList.contains(cls)) {}
+		return el;
+	}
+
 	function selectDate(e) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -1020,11 +1029,13 @@ function Flatpickr(element, config) {
 			return e.target.blur();
 		}
 
-		if (!e.target.classList.contains("flatpickr-day") || e.target.classList.contains("disabled") || e.target.classList.contains("notAllowed")) return;
+		var ancestor = findAncestor(e.target, "flatpickr-day");
 
-		var selectedDate = self.latestSelectedDateObj = new Date(e.target.dateObj.getTime());
+		if (!ancestor.classList.contains("flatpickr-day") || ancestor.classList.contains("disabled") || ancestor.classList.contains("notAllowed")) return;
 
-		self.selectedDateElem = e.target;
+		var selectedDate = self.latestSelectedDateObj = new Date(ancestor.dateObj.getTime());
+
+		self.selectedDateElem = ancestor;
 
 		if (self.config.mode === "single") self.selectedDates = [selectedDate];else if (self.config.mode === "multiple") {
 			var selectedIndex = isDateSelected(selectedDate);
