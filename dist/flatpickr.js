@@ -801,7 +801,7 @@ function Flatpickr(element, config) {
 	function onMouseOver(e) {
 		var ancestor = findAncestor(e.target, "flatpickr-day");
 
-		if (self.selectedDates.length !== 1 || !ancestor.classList.contains("flatpickr-day")) return;
+		if (self.selectedDates.length !== 1 || !ancestor || !ancestor.classList.contains("flatpickr-day")) return;
 
 		var hoverDate = ancestor.dateObj,
 		    initialDate = self.parseDate(self.selectedDates[0], true),
@@ -1031,7 +1031,7 @@ function Flatpickr(element, config) {
 
 		var ancestor = findAncestor(e.target, "flatpickr-day");
 
-		if (!ancestor.classList.contains("flatpickr-day") || ancestor.classList.contains("disabled") || ancestor.classList.contains("notAllowed")) return;
+		if (!ancestor || !ancestor.classList.contains("flatpickr-day") || ancestor.classList.contains("disabled") || ancestor.classList.contains("notAllowed")) return;
 
 		var selectedDate = self.latestSelectedDateObj = new Date(ancestor.dateObj.getTime());
 
